@@ -1,0 +1,31 @@
+/* Кастомные стили */
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table th {
+    white-space: nowrap;
+}
+
+.badge {
+    font-size: 0.9em;
+}
+
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+}
+
+canvas {
+    max-height: 300px;
+}
