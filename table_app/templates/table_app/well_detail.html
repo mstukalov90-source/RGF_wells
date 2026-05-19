@@ -1,136 +1,71 @@
 {% extends 'base.html' %}
 
-{% block title %}Список скважин{% endblock %}
+{% block title %}Скважина {{ selected.n_skv|default:'деталь' }}{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col">
-        <h1>База данных скважин</h1>
-        <p class="text-muted">Всего скважин: {{ total_count }}</p>
+        <h1>Скважина {{ selected.n_skv|default:'—' }}</h1>
+        <p class="text-muted">ID_XY: {{ selected.id_xy|default:'—' }}</p>
+        <a href="{% url 'home' %}" class="btn btn-secondary btn-sm">Назад к каталогу</a>
     </div>
 </div>
 
-<!-- Фильтры -->
 <div class="card mb-4">
-    <div class="card-header">
-        <h5>Фильтры</h5>
-    </div>
     <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-3">
-                <label for="field_name" class="form-label">Месторождение</label>
-                <input type="text" name="field_name" id="field_name" 
-                       class="form-control" value="{{ request.GET.field_name }}">
-            </div>
-            
-            <div class="col-md-3">
-                <label for="well_number" class="form-label">Номер скважины</label>
-                <input type="text" name="well_number" id="well_number" 
-                       class="form-control" value="{{ request.GET.well_number }}">
-            </div>
-            
-            <div class="col-md-2">
-                <label for="status" class="form-label">Статус</label>
-                <select name="status" id="status" class="form-select">
-                    <option value="">Все</option>
-                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Действующая</option>
-                    <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Бездействующая</option>
-                    <option value="liquidated" {% if request.GET.status == 'liquidated' %}selected{% endif %}>Ликвидированная</option>
-                </select>
-            </div>
-            
-            <div class="col-md-2">
-                <label for="date_from" class="form-label">Бурение от</label>
-                <input type="date" name="date_from" id="date_from" 
-                       class="form-control" value="{{ request.GET.date_from }}">
-            </div>
-            
-            <div class="col-md-2">
-                <label for="date_to" class="form-label">Бурение до</label>
-                <input type="date" name="date_to" id="date_to" 
-                       class="form-control" value="{{ request.GET.date_to }}">
-            </div>
-            
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Применить</button>
-                <a href="{% url 'home' %}" class="btn btn-secondary">Сбросить</a>
-            </div>
-        </form>
+        <div class="row gy-3">
+            <div class="col-md-4"><strong>Регион:</strong> {{ selected.region|default:'—' }}</div>
+            <div class="col-md-4"><strong>Месторождение:</strong> {{ selected.name_mst|default:'—' }}</div>
+            <div class="col-md-4"><strong>Площадь:</strong> {{ selected.plosh|default:'—' }}</div>
+            <div class="col-md-4"><strong>Номер скважины:</strong> {{ selected.n_skv|default:'—' }}</div>
+            <div class="col-md-4"><strong>Индекс пласта:</strong> {{ selected.id_strat|default:'—' }}</div>
+            <div class="col-md-4"><strong>Название пласта:</strong> {{ selected.strat|default:'—' }}</div>
+            <div class="col-md-4"><strong>Наличие испытаний:</strong> {% if has_tests %}Есть{% else %}Нет{% endif %}</div>
+        </div>
     </div>
 </div>
 
-<!-- Таблица скважин -->
 <div class="card">
-    <div class="card-body">
+    <div class="card-header">
+        <h5>Записи по этой группе</h5>
+    </div>
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
+            <table class="table table-sm table-striped mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th>ID</th>
-                        <th>Месторождение</th>
-                        <th>Номер скважины</th>
-                        <th>Статус</th>
-                        <th>Дата бурения</th>
-                        <th>Глубина</th>
-                        <th>Дебет нефти</th>
-                        <th>Действия</th>
+                        <th>#</th>
+                        <th>Тип скважины</th>
+                        <th>Забой, м</th>
+                        <th>Абс. отметка кровли</th>
+                        <th>Абс. отметка подошвы</th>
+                        <th>Дебит нефти</th>
+                        <th>Дебит воды</th>
+                        <th>Дебит газа</th>
+                        <th>Автор записи</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for well in wells %}
+                    {% for row in records %}
                     <tr>
-                        <td>{{ well.id }}</td>
-                        <td>{{ well.field_name }}</td>
-                        <td>{{ well.well_number }}</td>
-                        <td>
-                            {% if well.status == 'active' %}
-                                <span class="badge bg-success">Действующая</span>
-                            {% elif well.status == 'inactive' %}
-                                <span class="badge bg-warning">Бездействующая</span>
-                            {% else %}
-                                <span class="badge bg-danger">Ликвидированная</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ well.drilling_date }}</td>
-                        <td>{{ well.depth }} м</td>
-                        <td>{{ well.oil_rate }} т/сут</td>
-                        <td>
-                            <a href="{% url 'well_detail' well.id %}" class="btn btn-sm btn-info">Открыть</a>
-                        </td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ row.tip_skv|default:'—' }}</td>
+                        <td>{{ row.sk_zb|default:'—' }}</td>
+                        <td>{{ row.abs_o_k|default:'—' }}</td>
+                        <td>{{ row.abs_o_p|default:'—' }}</td>
+                        <td>{{ row.debit_n|default:'—' }}</td>
+                        <td>{{ row.debit_v|default:'—' }}</td>
+                        <td>{{ row.debit_g|default:'—' }}</td>
+                        <td>{{ row.auth|default:'—' }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center">Скважины не найдены</td>
+                        <td colspan="9" class="text-center">Записей нет</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        
-        <!-- Пагинация -->
-        {% if wells.has_other_pages %}
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if wells.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ wells.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Предыдущая</a>
-                    </li>
-                {% endif %}
-                
-                {% for num in wells.paginator.page_range %}
-                    <li class="page-item {% if wells.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
-                    </li>
-                {% endfor %}
-                
-                {% if wells.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ wells.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Следующая</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
