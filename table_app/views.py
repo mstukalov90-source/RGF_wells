@@ -1,3 +1,4 @@
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import F, Value, CharField, IntegerField, Max, Case, When, Q
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404, render
@@ -62,9 +63,19 @@ def home(request):
     elif has_tests == 'no':
         wells = wells.filter(has_tests=0)
 
+    paginator = Paginator(wells, 25)
+    page = request.GET.get('page', 1)
+    try:
+        wells_page = paginator.page(page)
+    except PageNotAnInteger:
+        wells_page = paginator.page(1)
+    except EmptyPage:
+        wells_page = paginator.page(paginator.num_pages)
+
     context = {
-        'wells': wells,
-        'total_count': wells.count(),
+        'wells': wells_page,
+        'total_count': paginator.count,
+        'page_range': paginator.get_elided_page_range(wells_page.number, on_each_side=2, on_ends=1),
         'filters': {
             'region': region,
             'name_mst': name_mst,
